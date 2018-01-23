@@ -14,11 +14,13 @@ function install_configs() {
     fi
     for conf in ${list}; do
         SUDO="sudo"
+	if echo $conf | grep -v -q "^/"; then
+            conf=$(realpath ${conf})
+        fi
         if echo $conf | grep -q "^${HOME}"; then
             SUDO=""
         fi
-	conf=$(realpath ${conf})
-        ${SUDO} cp ${configs_dir}/${conf} ${conf}
+        ( cd $configs_dir; ${SUDO} cp --parents ${conf:1} / )
     done
 }
 
