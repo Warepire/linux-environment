@@ -6,3 +6,5 @@
 /home/warepire/.vimrc
 /home/warepire/.config/termite/config
 /home/warepire/.screenrc
+/etc/vconsole.conf
+/etc/locale.conf
