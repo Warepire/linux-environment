@@ -1,0 +1,118 @@
+#!/bin/sh
+
+configs_dir=$(realpath ~/.configmgr)
+configs_list=configurations.mgrlist
+
+# Ensure the directory exists
+mkdir -p ${configs_dir}
+
+# args original paths
+function install_configs() {
+    list="$@"
+    if [ -z ${list} ]; then
+        list="$(cat ${configs_dir}/${configs_list})"
+    fi
+    for conf in ${list}; do
+        SUDO="sudo"
+        if echo $conf | grep -q "^${HOME}"; then
+            SUDO=""
+        fi
+	conf=$(realpath ${conf})
+        ${SUDO} cp ${configs_dir}/${conf} ${conf}
+    done
+}
+
+# args location of config file
+function take_configs() {
+    list="$@"
+    if [ -z ${list} ]; then
+        list="$(cat ${configs_dir}/${configs_list})"
+    fi
+    for conf in ${list}; do
+	conf=$(realpath ${conf})
+        cp --parents ${conf} ${configs_dir}
+    done
+}
+
+function diff_configs() {
+    list="$(cat ${configs_dir}/${configs_list})"
+    for conf in ${list}; do
+        diff -u --unidirectional-new-file ${conf} ${configs_dir}/${conf}
+    done
+}
+
+# args file to track
+function track_configs() {
+    if [ -z "$@" ]; then
+        echo "No files provided"
+        return
+    fi
+    for conf in "$@"; do
+	conf=$(realpath ${conf})
+        if grep -q "${conf}" "${configs_dir}/${configs_list}" &> /dev/null; then
+            echo "Already tracking ${conf}"
+        else
+            echo ${conf} >> ${configs_dir}/${configs_list}
+            take_configs ${conf}
+        fi
+    done
+}
+
+# args file to drop
+function drop_configs() {
+    if [ -z "$@" ]; then
+        echo "No files provided"
+        return
+    fi
+    for conf in "$@"; do
+        conf=$(realpath ${conf})
+        if grep -q "${conf}" "${configs_dir}/${configs_list}"; then
+            sed -i "s#^${conf}\$##g" "${configs_dir}/${configs_list}"
+            rm -f "${configs_dir}/${conf}"
+            find "${configs_dir}" -type d -empty -delete
+        else
+            echo "Not tracking ${conf}"
+        fi
+    done
+}
+
+function list_configs() {
+    cat "${configs_dir}/${configs_list}"
+}
+
+command=""
+if [ "$#" -gt 0 ]; then
+    command="$1"
+    shift
+fi
+
+case ${command} in
+    install)
+        install_configs $@
+        ;;
+    take)
+        take_configs $@
+        ;;
+    diff)
+        diff_configs
+        ;;
+    track)
+        track_configs $@
+        ;;
+    drop)
+        drop_configs $@
+        ;;
+    list)
+        list_configs
+        ;;
+    *)
+        echo "Unknown command sequence $@"
+        echo "Avaiable commands:"
+        echo "  install [file...] -- Install configurations from storage."
+        echo "  take [file...]    -- Update storage with configurations."
+        echo "  diff              -- Show what has changed."
+        echo "  track file...     -- Start tracking files."
+        echo "  drop file...      -- Stop tracking files."
+        echo "  list              -- List currently tracked files."
+        ;;
+esac
