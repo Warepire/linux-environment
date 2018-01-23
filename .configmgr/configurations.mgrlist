@@ -9,3 +9,6 @@
 /etc/vconsole.conf
 /etc/locale.conf
 /home/warepire/.gitconfig
+/home/warepire/.xserverrc
+/home/warepire/.xsession
+/home/warepire/.zprofile
