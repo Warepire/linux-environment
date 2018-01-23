@@ -1,0 +1,5 @@
+alias ls='ls -F --color=auto'
+alias ll='ls -al'
+alias l='ls -l'
+alias make='make -j'
+alias online_paste='curl -F c=@- https://ptpb.pw/'
