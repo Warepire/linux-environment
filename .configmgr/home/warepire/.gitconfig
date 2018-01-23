@@ -1,0 +1,12 @@
+[core]
+	editor = /usr/bin/vim
+[rebase]
+	autosquash = true
+[user]
+	email = Warepire@users.noreply.github.com
+	name = Warepire
+[sendemail]
+	smtpEncryption = tls
+	smtpServer = smtp.gmail.com
+	smtpUser = warepire.ml@gmail.com
+	smtpServerPort = 587
