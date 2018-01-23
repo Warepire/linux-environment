@@ -68,6 +68,7 @@ function drop_configs() {
         conf=$(realpath ${conf})
         if grep -q "${conf}" "${configs_dir}/${configs_list}"; then
             sed -i "s#^${conf}\$##g" "${configs_dir}/${configs_list}"
+            sed -i '/^$/d' "${configs_dir}/${configs_list}"
             rm -f "${configs_dir}/${conf}"
             find "${configs_dir}" -type d -empty -delete
         else
